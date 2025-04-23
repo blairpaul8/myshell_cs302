@@ -1,11 +1,14 @@
-GXX = gcc
-CFLAGS = -fsanitize=address -g3
-TARGET = myshell
+CC ?= gcc
+CFLAGS ?= -fsanitize=address -g3
+TARGET = bin/myshell
+OBJS = bin/hash_map.o
 
 all: $(TARGET)
 
-$(TARGET): myshell.c
-	$(GXX) $(CFLAGS) myshell.c -o $(TARGET)
+$(TARGET): src/myshell.c $(OBJS)
+	$(CC) $(CFLAGS) src/myshell.c $(OBJS) -o $(TARGET)
 
+$(OBJS): src/hash_map.c src/hash_map.h 
+	$(CC) $(CFLAGS) -c src/hash_map.c -o $(OBJS)
 clean:
-	rm -f $(TARGET)
+	rm -f $(TARGET) $(OBJS)

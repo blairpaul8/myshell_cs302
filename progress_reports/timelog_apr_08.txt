@@ -1,0 +1,14 @@
+Timelog:
+  Challenge 7:
+  - 30 minutes writing a Makefile to make compiling my code easier.
+  - 2 hours working on learing how to read input in C and implemented my getline() function.
+  - 3 hours learning how to parse input with strtok() and how to use fork() and execvp(). 
+ 
+ Progress Report 08 APR:
+  - 2 hours implementing a hash_map that will be used to lookup the built-in commands of the shell 
+  - 2 writing the built-in commands cd, man, exit, and echo
+
+    Note:
+      in my git repo there are example programs I wrote while I was learning about fork() and process id's.
+
+

@@ -1,0 +1,29 @@
+BUILTIN(1)                        General Commands Manual                        BUILTIN(1)
+
+NAME
+     man, cd, exit, and echo
+
+DESCRIPTION
+     Shell builtin commands are commands that can be executed within the running shell's
+     process.  Note that, in the case of csh(1) builtin commands, the command is executed
+     in a subshell if it occurs as any component of a pipeline except the last.
+
+     If a command specified to the shell contains a slash ‘/’, the shell will not execute a
+     builtin command, even if the last component of the specified command matches the name
+     of a builtin command.  Thus, while specifying “echo” causes a builtin command to be
+     executed under shells that support the echo builtin command, specifying “/bin/echo” or
+     “./echo” does not.
+
+     While some builtin commands may exist in more than one shell, their operation may be
+     different under each shell which supports them.  Below is a table which lists shell
+     builtin commands, the standard shells that support them and whether they exist as
+     standalone utilities.
+
+     Only builtin commands for the csh(1) and sh(1) shells are listed here.  Consult a
+     shell's manual page for details on the operation of its builtin commands.  Beware that
+     the sh(1) manual page, at least, calls some of these commands “built-in commands” and
+     some of them “reserved words”.  Users of other shells may need to consult an info(1)
+     page or other sources of documentation.
+
+     Commands marked “No**” under External do exist externally, but are implemented as
+     scripts using a builtin command of the same name.

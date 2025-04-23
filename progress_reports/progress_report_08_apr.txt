@@ -1,0 +1,8 @@
+Progress Report:
+
+  Since the Challenge 7 progress report I have finished my hash table implementation and written the functions for the built-in commands cd, man, exit, and echo. I am using my hash table to have constant time lookups of the built-in command with the key being the name of the command and the value being a function pointer to the function to the corresponding function. For the man command it is just a manual/help page for the shell detailing the functionality and the built-in commands available. 
+
+  Moving forward the next big hurdle is to implement piping and redirection. I am currently looking over Dr. Plank's 360 notes on dup() and pipe to learn more about how to do this. I expect this to take a decent amount of time to understand and implement into my existing code. I plan on reaching out to Zach if I have any issues with this part of the project.
+
+  https://github.com/blairpaul8/myshell_cs302
+  

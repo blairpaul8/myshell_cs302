@@ -4,14 +4,21 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <string.h>
+#include "hash_map.h"
 
 #define DELIMITERS " \t\r\n\a"
 #define GREEN "\033[32m"
 #define RESET "\033[0m"
 #define BLUE "\033[34m"
+#define CLEAR "\033[H"
 
 int execute(char** args) {
-  //char* command = "ls";
+  int builtin_index = lookup(args[0]);
+  if (builtin_index != -1) {
+    return builtin_cmds[builtin_index](args);
+    return 1;
+  }
+
   pid_t pid;
   pid_t wpid;
   int status;
@@ -79,17 +86,17 @@ ssize_t get_input(char** input, size_t *buff, int delim) {
   if (*input == NULL) {
     *input = (char*)malloc(*buff * sizeof(char));
   }
-  int c;
+  int character;
   int i = 0;
   ssize_t len = 0;
 
-  while ((c = getchar()) != '\n') {
+  while ((character = getchar()) != '\n') {
     if (i >= *buff) {
       *buff += *buff;
       *input = (char*)realloc(*input, *buff * sizeof(char*));
 
     }
-    (*input)[i] = c;
+    (*input)[i] = character;
     i++;
     len++;
   }
@@ -109,11 +116,11 @@ void sh_loop(void) {
 	char** args;
 	int status;
 
-	getcwd(cwd, sizeof(cwd));
-  char* home = getenv("HOME");
-
-	system("clear");
+  system("clear");
 	do {
+	  getcwd(cwd, sizeof(cwd));
+    char* home = getenv("HOME");
+
     if (home != NULL && (strncmp(home, cwd, strlen(home)) == 0)) {
 		  printf(GREEN "%s:" BLUE "~%s\n"" >> " RESET,user, cwd + strlen(home));
 
