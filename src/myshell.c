@@ -1,14 +1,11 @@
+#include "hash_map.h"
 #include <fcntl.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-<<<<<<< HEAD:src/myshell.c
-#include "hash_map.h"
-=======
 #include <sys/wait.h>
 #include <unistd.h>
->>>>>>> 2f8bf16effa2c17ad5a598a324142a7447cca8fe:myshell.c
 
 #define DELIMITERS " \t\r\n\a"
 #define GREEN "\033[32m"
@@ -16,32 +13,42 @@
 #define BLUE "\033[34m"
 #define CLEAR "\033[H"
 
-<<<<<<< HEAD:src/myshell.c
-int execute(char** args) {
+int execute(char **args, int *token_count) {
+  // char* command = "ls";
+  pid_t pid;
+  pid_t wpid;
+  int status;
+  int fd1;
+  int fd2;
+  int stdout_id = 1;
+  int stdin_id = 0;
   int builtin_index = lookup(args[0]);
   if (builtin_index != -1) {
     return builtin_cmds[builtin_index](args);
     return 1;
   }
 
-=======
-int execute(char **args, int *token_count) {
-  // char* command = "ls";
->>>>>>> 2f8bf16effa2c17ad5a598a324142a7447cca8fe:myshell.c
-  pid_t pid;
-  pid_t wpid;
-  int status;
-  int fd1;
-  int stdout_id = 1;
   pid = fork();
 
   if (pid == 0) {
+    // output redirection
+    //
     for (int i = 0; i < *token_count; i++) {
       if (strncmp(args[i], ">", 1) == 0) {
         fd1 = open(args[i + 1], O_CREAT | O_WRONLY | O_TRUNC, 0644);
         memmove(&args[i], &args[i + 2], (i + 1) * sizeof(args[0]));
         stdout_id = dup2(fd1, 1);
-        break;
+        *token_count = *token_count - 2;
+      }
+    }
+
+    // input redirection
+    for (int i = 0; i < *token_count; i++) {
+      if (strncmp(args[i], "<", 1) == 0) {
+        fd2 = open(args[i + 1], O_RDONLY);
+        memmove(&args[i], &args[i + 2], (i + 1) * sizeof(args[0]));
+        stdin_id = dup2(fd2, 0);
+        *token_count = *token_count - 2;
       }
     }
     close(fd1);
@@ -124,19 +131,13 @@ void sh_loop(void) {
   int status;
   int token_count = 0;
 
-<<<<<<< HEAD:src/myshell.c
   system("clear");
-	do {
-	  getcwd(cwd, sizeof(cwd));
-    char* home = getenv("HOME");
-
-=======
-  getcwd(cwd, sizeof(cwd));
-  char *home = getenv("HOME");
 
   system("clear");
   do {
->>>>>>> 2f8bf16effa2c17ad5a598a324142a7447cca8fe:myshell.c
+    getcwd(cwd, sizeof(cwd));
+    char *home = getenv("HOME");
+
     if (home != NULL && (strncmp(home, cwd, strlen(home)) == 0)) {
       printf(GREEN "%s:" BLUE "~%s\n"
                    " >> " RESET,
