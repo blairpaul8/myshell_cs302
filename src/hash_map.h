@@ -5,16 +5,15 @@
 #include <string.h>
 
 #define NUM_BUILTINS 3
-int cmd_cd(char** args);
-int cmd_man(char** args);
-int cmd_exit(char** args);
-int cmd_echo(char** args);
+int cmd_cd(char **args);
+int cmd_help(char **args);
+int cmd_exit(char **args);
+int cmd_echo(char **args);
 
-extern char* cmds[];
-extern int (*builtin_cmds[])(char**);
+extern char *cmds[];
+extern int (*builtin_cmds[])(char **);
 
-int lookup(char* cmd);
-unsigned int hash(char* cmd);
-
+int lookup(char *cmd);
+unsigned int hash(char *cmd);
 
 #endif // !HASH_MAP_H

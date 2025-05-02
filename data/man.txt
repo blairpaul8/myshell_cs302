@@ -1,7 +1,7 @@
 BUILTIN(1)                        General Commands Manual                        BUILTIN(1)
 
 NAME
-     man, cd, exit, and echo
+     help, cd, exit, and echo
 
 DESCRIPTION
      Shell builtin commands are commands that can be executed within the running shell's

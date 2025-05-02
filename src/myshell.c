@@ -18,11 +18,17 @@ int execute(char **args, int *token_count) {
   pid_t pid;
   pid_t wpid;
   int status;
-  int fd1;
-  int fd2;
+  int fd1; // for output redirection
+  int fd2; // for input redirection
   int stdout_id = 1;
   int stdin_id = 0;
+
+  if (args[0] == NULL) {
+    return 1;
+  }
+
   int builtin_index = lookup(args[0]);
+
   if (builtin_index != -1) {
     return builtin_cmds[builtin_index](args);
     return 1;
@@ -79,6 +85,11 @@ char **parse_input(char *input, int *token_count) {
     return EXIT_SUCCESS;
   }
 
+  if (input[0] == '\n') {
+    tokens[0] = NULL;
+    return tokens;
+  }
+
   token = strtok(input, DELIMITERS);
 
   while (token != NULL) {
@@ -116,17 +127,19 @@ ssize_t get_input(char **input, size_t *buff, int delim) {
   }
 
   (*input)[len] = '\0';
-
   return len;
 }
 
 void sh_loop(void) {
   // Used for the prompt
   char cwd[1024];
+
+  // gets the username of the user logged in
   char *user = getlogin();
   char *input = NULL;
   size_t buff = 0;
   ssize_t linelen;
+  // array of strings to hold each token
   char **args;
   int status;
   int token_count = 0;
@@ -135,9 +148,14 @@ void sh_loop(void) {
 
   system("clear");
   do {
+    // get current working directory of the user
     getcwd(cwd, sizeof(cwd));
+
+    // get the path to users home directory
     char *home = getenv("HOME");
 
+    // check to see if the path to home is the same in the CWD to shorten the
+    // prompt with ~
     if (home != NULL && (strncmp(home, cwd, strlen(home)) == 0)) {
       printf(GREEN "%s:" BLUE "~%s\n"
                    " >> " RESET,
@@ -149,9 +167,14 @@ void sh_loop(void) {
              user, cwd);
     }
 
+    // get_input is my  own getline and returns the length of the input string.
     linelen = get_input(&input, &buff, '\n');
-    // printf("%s\n", input);
+
+    // Parse input calls strtok to parse the input and returns a char**
     args = parse_input(input, &token_count);
+
+    // execute returns 1 for valid command execution so the while loop
+    // will continue to prompt the user
     status = execute(args, &token_count);
     free(input);
     free(args);
