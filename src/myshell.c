@@ -13,8 +13,7 @@
 #define BLUE "\033[34m"
 #define CLEAR "\033[H"
 
-int execute(char **args, int *token_count) {
-  // char* command = "ls";
+int execute(char ***args, int *token_count) {
   pid_t pid;
   pid_t wpid;
   int status;
@@ -22,89 +21,108 @@ int execute(char **args, int *token_count) {
   int fd2; // for input redirection
   int stdout_id = 1;
   int stdin_id = 0;
+  // int pipe1[2];
+  // int pipe2[2];
 
   if (args[0] == NULL) {
     return 1;
   }
 
-  int builtin_index = lookup(args[0]);
+  for (int i = 0; i < *token_count; i++) {
 
-  if (builtin_index != -1) {
-    return builtin_cmds[builtin_index](args);
-    return 1;
-  }
+    char **curr = args[i];
+    // Add builins back here
+    int builtin_index = lookup(args[0][0]);
 
-  pid = fork();
-
-  if (pid == 0) {
-    // output redirection
-    //
-    for (int i = 0; i < *token_count; i++) {
-      if (strncmp(args[i], ">", 1) == 0) {
-        fd1 = open(args[i + 1], O_CREAT | O_WRONLY | O_TRUNC, 0644);
-        memmove(&args[i], &args[i + 2], (i + 1) * sizeof(args[0]));
-        stdout_id = dup2(fd1, 1);
-        *token_count = *token_count - 2;
-      }
+    if (builtin_index != -1) {
+      return builtin_cmds[builtin_index](args[0]);
+      return 1;
     }
 
-    // input redirection
-    for (int i = 0; i < *token_count; i++) {
-      if (strncmp(args[i], "<", 1) == 0) {
-        fd2 = open(args[i + 1], O_RDONLY);
-        memmove(&args[i], &args[i + 2], (i + 1) * sizeof(args[0]));
-        stdin_id = dup2(fd2, 0);
-        *token_count = *token_count - 2;
+    pid = fork();
+
+    // Child Process
+    if (pid == 0) {
+
+      // output redirection
+      for (int j = 0; curr[j] != NULL; j++) {
+
+        if (strncmp(curr[j], ">", 1) == 0) {
+          fd1 = open(curr[j + 1], O_CREAT | O_WRONLY | O_TRUNC, 0644);
+          memmove(&curr[j], &curr[j + 2], (j + 1) * sizeof(curr[0]));
+          stdout_id = dup2(fd1, 1);
+        }
       }
+
+      // input redirection
+      for (int j = 0; curr[j] != NULL; j++) {
+
+        if (strncmp(curr[j], "<", 1) == 0) {
+          fd2 = open(curr[j + 1], O_RDONLY);
+          memmove(&curr[j], &curr[j + 2], (j + 1) * sizeof(curr[0]));
+          stdin_id = dup2(fd2, 0);
+        }
+      }
+
+      execvp(curr[0], curr);
+      perror("execvp failed");
+      exit(EXIT_FAILURE);
+
+    } else if (pid < 0) {
+      perror("Fork failed.\n");
+      return 0;
+
     }
-    close(fd1);
-    execvp(args[0], args);
-
-  } else if (pid < 0) {
-    perror("Fork failed.\n");
-    return 0;
-
-  } else {
-    wpid = wait(&status);
-    // printf("parent waiting pid = %d\n", pid);
-    // printf("  WIFEXITED:    %d\n", WIFEXITED(status));
+    // Parent process
+    else {
+      wpid = wait(&status);
+    }
   }
 
   return 1;
 }
 
-char **parse_input(char *input, int *token_count) {
+char ***parse_input(char *input, int *token_count) {
   int num_tokens = 10;
   char **tokens;
+  char ***args;
   char *token;
-  *token_count = 0;
+  int args_ptr = 0;
+  int args_inner_ptr = 0;
+  *token_count = 1;
 
-  tokens = (char **)malloc(num_tokens * sizeof(char *));
-  if (tokens == NULL) {
-    perror("Failed to allocate memory for tokens");
-    return EXIT_SUCCESS;
+  args = (char ***)malloc(10 * sizeof(char **));
+
+  for (int i = 0; i < 10; i++) {
+    args[i] = (char **)malloc(10 * sizeof(char *));
   }
 
   if (input[0] == '\n') {
-    tokens[0] = NULL;
-    return tokens;
+    args[0][0] = NULL;
+    args[1] = NULL;
+    return args;
   }
 
   token = strtok(input, DELIMITERS);
 
   while (token != NULL) {
-    if (*token_count >= num_tokens) {
-      num_tokens *= 2;
-      tokens = (char **)realloc(tokens, num_tokens * sizeof(char *));
+
+    if (strncmp(token, "|", 1) != 0) {
+      args[args_ptr][args_inner_ptr] = strdup(token);
+      args_inner_ptr += 1;
+    } else {
+      args[args_ptr][args_inner_ptr] = NULL;
+      args_inner_ptr = 0;
+      args_ptr += 1;
+      *token_count += 1;
     }
-    tokens[*token_count] = token;
-    (*token_count)++;
     token = strtok(NULL, DELIMITERS);
   }
 
-  tokens[*token_count] = NULL;
+  args[args_ptr][args_inner_ptr] = NULL;
+  args[args_ptr + 1] = NULL;
 
-  return tokens;
+  return args;
 }
 
 ssize_t get_input(char **input, size_t *buff, int delim) {
@@ -140,7 +158,7 @@ void sh_loop(void) {
   size_t buff = 0;
   ssize_t linelen;
   // array of strings to hold each token
-  char **args;
+  char ***args;
   int status;
   int token_count = 0;
 
