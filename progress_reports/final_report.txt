@@ -1,0 +1,48 @@
+Final Report:
+
+  This shell project is complete with the following functionality:
+
+  - execute commands found in /usr/bin
+  - execute built-in commands using a custom hash map to lookup/call the function 
+  - File input and output redirection
+  - Piping between processes 
+
+User Manual:
+
+Project Structure
+
+myshell_302/
+|-- README.md 
+|-- Makefile
+|
+|-- src/
+|     |-- myshell.c
+|     |-- hash_map.c
+|     |-- hash_map.h
+|
+|-- bin/
+|     |-- hash_map.o
+|     |-- myshell
+|
+|-- data/
+|     |-- man.txt (for help built-in command)
+
+
+Compile the project:
+
+  make
+
+Run the shell:
+
+  bin/myshell 
+
+Example inputs:
+
+  - ls 
+  - cd ~ 
+  - cd data 
+    ./example < file1 > file2 CS302
+    cat pipe_test | grep hello
+
+These examples with pictures can be found on the github page at
+  https://github.com/blairpaul8/myshell_cs302

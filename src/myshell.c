@@ -205,7 +205,7 @@ ssize_t get_input(char **input, size_t *buff, int delim) {
   return len;
 }
 
-void sh_loop(void) {
+void prompt_loop(void) {
   // Used for the prompt
   char cwd[1024];
 
@@ -262,7 +262,7 @@ void sh_loop(void) {
 
 int main() {
 
-  sh_loop();
+  prompt_loop();
 
   return 0;
 }

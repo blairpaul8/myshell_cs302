@@ -1,0 +1,23 @@
+Timelog:
+
+  - 30 minutes writing a Makefile to make compiling my code easier.
+  - 2 hours working on learing how to read input in C and implemented my getline() function.
+  - 3 hours learning how to parse input with strtok() and how to use fork() and execvp(). 
+ 
+ 
+  - 2 hours implementing a hash_map that will be used to lookup the built-in commands of the shell 
+  - 2 hours writing the built-in commands cd, man, exit, and echo
+
+    Note:
+      in my git repo there are example programs I wrote while I was learning about fork() and process id's.
+
+  - 5 hours learning about file redirection and implementing this in the project
+    - Read through Dr. planks notes and also watched select videos from UC Berkley's Systems Programing CS162 on youtube.
+
+  - 6+ hours learning about piping and implementing into the project.
+    - by far the most difficult thing to implement. I had a difficult time juggling two pipes to pipe between processes.
+    - Again read Dr. Planks notes and watch the UC Berkley videos.
+
+
+
+
