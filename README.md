@@ -23,8 +23,26 @@ bin/myshell
 
 ## Testing the shell
 
+  Here are some examples of commands that can be run in the shell. Feel free to copy these examples to test or try your own.
+
   ``` SHELL 
 ls
 ```
 
 ![Alt text](data/photos/ls.png)
+
+```SHELL
+cd ~
+```
+![Alt text](data/photos/cd.png)
+
+```SHELL
+./example < file1 > file2 CS302
+```
+![Alt text](data/photos/redirection.png)
+
+```SHELL
+cat pipe_test | grep hello > file3
+```
+![Alt text](data/photos/piping.png)
+
