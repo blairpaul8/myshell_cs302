@@ -97,9 +97,8 @@ char ***parse_input(char *input, int *token_count) {
     args[i] = (char **)malloc(10 * sizeof(char *));
   }
 
-  if (input[0] == '\n') {
-    args[0][0] = NULL;
-    args[1] = NULL;
+  if (strspn(input, "\n") == strlen(input)) {
+    args[0] = NULL;
     return args;
   }
 

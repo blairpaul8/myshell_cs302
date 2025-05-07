@@ -38,7 +38,7 @@ int cmd_cd(char **args) {
 
 // Builtin cmd function to print the man page.
 int cmd_help(char **args) {
-  printf("Calling help\n");
+  // printf("Calling help\n");
 
   FILE *fd;
   fd = fopen("data/man.txt", "r");
