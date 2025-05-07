@@ -42,7 +42,7 @@ cd ~
 ![Alt text](data/photos/redirection.png)
 
 ```SHELL
-cat pipe_test | grep hello > file3
+cat pipe_test | grep hello
 ```
 ![Alt text](data/photos/piping.png)
 
