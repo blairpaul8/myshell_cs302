@@ -1,5 +1,5 @@
 CC ?= gcc
-CFLAGS ?= -fsanitize=address -g3
+CFLAGS ?= -g 
 TARGET = bin/myshell
 OBJS = bin/hash_map.o
 

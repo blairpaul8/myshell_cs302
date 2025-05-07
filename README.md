@@ -21,8 +21,10 @@ Run the program
 bin/myshell
 ```
 
-Optional grade-scripts
+## Testing the shell
 
-``` Makefile 
-make test
+  ``` SHELL 
+ls
 ```
+
+![Alt text] (bin/data/photos/ls.png)

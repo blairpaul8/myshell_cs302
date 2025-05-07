@@ -13,6 +13,16 @@
 #define BLUE "\033[34m"
 #define CLEAR "\033[H"
 
+int get_len(char **cmds) {
+  int cmd_count = 0;
+
+  for (int i = 0; cmds[i] != NULL; i++) {
+    cmd_count++;
+  }
+  cmd_count++;
+  return cmd_count;
+}
+
 int execute(char ***args, int *token_count) {
   pid_t pid;
   pid_t wpid;
@@ -21,8 +31,8 @@ int execute(char ***args, int *token_count) {
   int fd2; // for input redirection
   int stdout_id = 1;
   int stdin_id = 0;
-  // int pipe1[2];
-  // int pipe2[2];
+  int curr_pipe[2];
+  int prev_pipe[2];
 
   if (args[0] == NULL) {
     return 1;
@@ -30,8 +40,16 @@ int execute(char ***args, int *token_count) {
 
   for (int i = 0; i < *token_count; i++) {
 
+    // check if pipe needs to be opend
+    if (i != (*token_count - 1)) {
+      pipe(curr_pipe);
+    }
+
     char **curr = args[i];
-    // Add builins back here
+
+    int cmd_len = get_len(curr);
+
+    // look for built-in commands
     int builtin_index = lookup(args[0][0]);
 
     if (builtin_index != -1) {
@@ -44,12 +62,33 @@ int execute(char ***args, int *token_count) {
     // Child Process
     if (pid == 0) {
 
+      // change stdout to write end of the pipe
+      if (i != *token_count - 1) {
+        dup2(curr_pipe[1], 1);
+      }
+      // change stdin to read end of the pipe
+      if (i != 0) {
+        dup2(prev_pipe[0], 0);
+      }
+
+      // Close pipe file descriptors
+      if (i != 0) {
+        close(prev_pipe[0]);
+        close(prev_pipe[1]);
+      }
+
+      if (i != (*token_count - 1)) {
+        close(curr_pipe[1]);
+        close(curr_pipe[0]);
+      }
+
       // output redirection
       for (int j = 0; curr[j] != NULL; j++) {
 
         if (strncmp(curr[j], ">", 1) == 0) {
           fd1 = open(curr[j + 1], O_CREAT | O_WRONLY | O_TRUNC, 0644);
-          memmove(&curr[j], &curr[j + 2], (j + 1) * sizeof(curr[0]));
+          memmove(curr + j, curr + j + 2,
+                  (cmd_len - (j + 2)) * sizeof(curr[0]));
           stdout_id = dup2(fd1, 1);
         }
       }
@@ -59,7 +98,8 @@ int execute(char ***args, int *token_count) {
 
         if (strncmp(curr[j], "<", 1) == 0) {
           fd2 = open(curr[j + 1], O_RDONLY);
-          memmove(&curr[j], &curr[j + 2], (j + 1) * sizeof(curr[0]));
+          memmove(curr + j, curr + j + 2,
+                  (cmd_len - (j + 2)) * sizeof(curr[0]));
           stdin_id = dup2(fd2, 0);
         }
       }
@@ -75,10 +115,25 @@ int execute(char ***args, int *token_count) {
     }
     // Parent process
     else {
-      wpid = wait(&status);
+      if (i > 0) {
+        close(prev_pipe[0]);
+        close(prev_pipe[1]);
+      }
+      if (i < (*token_count - 1)) {
+        prev_pipe[0] = curr_pipe[0];
+        prev_pipe[1] = curr_pipe[1];
+
+        close(curr_pipe[1]);
+      }
     }
   }
 
+  // Wait for all child processes
+  for (int i = 0; i < *token_count; i++) {
+    wait(&status);
+  }
+
+  printf("\n");
   return 1;
 }
 
@@ -134,6 +189,9 @@ ssize_t get_input(char **input, size_t *buff, int delim) {
   ssize_t len = 0;
 
   while ((character = getchar()) != '\n') {
+    if (character == EOF && len == 0) {
+      exit(0);
+    }
     if (i >= *buff) {
       *buff += *buff;
       *input = (char *)realloc(*input, *buff * sizeof(char *));
@@ -183,6 +241,8 @@ void sh_loop(void) {
                    " >> " RESET,
              user, cwd);
     }
+
+    fflush(stdout);
 
     // get_input is my  own getline and returns the length of the input string.
     linelen = get_input(&input, &buff, '\n');
