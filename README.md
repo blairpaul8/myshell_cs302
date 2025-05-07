@@ -27,4 +27,4 @@ bin/myshell
 ls
 ```
 
-![Alt text] (/bin/data/photos/ls.png)
+![Alt text] (/data/photos/ls.png)
